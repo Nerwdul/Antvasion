@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111914">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src https://nominatim.openstreetmap.org https://overpass-api.de https://overpass.kumi.systems; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>Antvasion</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell menu-active">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Antvasion home">
+          <span class="brand-mark" aria-hidden="true">A</span>
+          <span>ANTVASION</span>
+        </a>
+        <span class="topbar-note"><span class="live-dot"></span> COLONY STATUS: UNDER CONTROL</span>
+      </header>
+
+      <section id="main-menu" class="screen menu-screen active" aria-labelledby="menu-title">
+        <div class="menu-stage">
+          <img class="menu-image" src="assets/menu.png" alt="A tiny ant soldier about to be stepped on by a giant boot. Antvasion!">
+          <h1 id="menu-title" class="sr-only">ANTVASION!</h1>
+          <nav class="menu-actions" aria-label="Main menu">
+            <button id="play-button" class="button button-primary" type="button"><span>Start Game</span></button>
+            <button id="settings-button" class="button button-secondary" type="button">Settings</button>
+            <button id="quit-button" class="button button-quiet" type="button">Quit</button>
+          </nav>
+        </div>
+        <div class="corner-note">EST. IN THE GARDEN</div>
+      </section>
+
+      <section id="settings-screen" class="screen content-screen" aria-labelledby="settings-title" hidden>
+        <div class="content-card settings-card">
+          <p class="eyebrow"><span class="eyebrow-line"></span> MAKE IT YOURS</p>
+          <h2 id="settings-title">Settings</h2>
+          <p class="content-lede">Tune your colony before heading out.</p>
+
+          <div class="setting-row">
+            <div>
+              <h3>Difficulty</h3>
+              <p>Choose how quickly your colony spreads.</p>
+            </div>
+            <div class="choice-group" role="group" aria-label="Difficulty">
+              <button class="choice-button" data-difficulty="easy" type="button">Easy</button>
+              <button class="choice-button selected" data-difficulty="normal" type="button">Normal</button>
+              <button class="choice-button" data-difficulty="hard" type="button">Hard</button>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <h3>Sound effects</h3>
+              <p>Little victory sounds, big ant energy.</p>
+            </div>
+            <label class="switch">
+              <input id="sound-toggle" type="checkbox" checked>
+              <span class="switch-track"></span>
+              <span class="switch-label" id="sound-label">On</span>
+            </label>
+          </div>
+
+          <button id="back-button" class="button button-secondary back-button" type="button">← &nbsp; Back to menu</button>
+        </div>
+      </section>
+
+      <section id="town-screen" class="screen content-screen" aria-labelledby="town-title" hidden>
+        <div class="content-card settings-card">
+          <p class="eyebrow"><span class="eyebrow-line"></span> CHOOSE YOUR BATTLEFIELD</p>
+          <h2 id="town-title">Pick a town</h2>
+          <p class="content-lede">Spread through a random town, or search an address to play on a real map (about 1 × 1 mile, centered on that address).</p>
+
+          <div class="setting-row">
+            <div>
+              <h3>Random town</h3>
+              <p>Auto-generate a neighborhood of streets and houses.</p>
+            </div>
+            <button id="random-town-button" class="button button-primary" type="button">Generate &amp; play</button>
+          </div>
+
+          <form id="address-form" class="address-form">
+            <label for="address-input"><h3>Or search an address</h3></label>
+            <div class="address-row">
+              <input id="address-input" type="text" placeholder="Enter an address" autocomplete="off" required>
+              <button id="address-button" class="button button-primary" type="submit">Search &amp; play</button>
+            </div>
+            <p id="town-status" class="town-status" role="status"></p>
+          </form>
+
+          <button id="town-back-button" class="button button-secondary back-button" type="button">Back to menu</button>
+        </div>
+      </section>
+
+      <section id="loading-screen" class="screen content-screen" aria-labelledby="loading-title" hidden>
+        <div class="content-card loading-card">
+          <p class="eyebrow"><span class="eyebrow-line"></span> PREPARING YOUR BATTLEFIELD</p>
+          <h2 id="loading-title">Building your map</h2>
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <p id="loading-status" class="content-lede" role="status">Preparing town…</p>
+          <progress id="loading-progress" class="loading-progress" max="100" aria-label="Map drawing progress"></progress>
+          <p id="loading-percent" class="loading-percent" aria-hidden="true"></p>
+          <button id="cancel-loading-button" class="button button-secondary back-button" type="button">Cancel</button>
+        </div>
+      </section>
+
+      <section id="game-screen" class="screen game-screen" aria-label="Antvasion game" hidden>
+        <div class="game-topbar">
+          <button id="pause-button" class="pause-button" type="button" aria-label="Pause game">Ⅱ</button>
+          <div id="game-stats" class="game-stats">
+            <span>ANTS <strong id="ant-count">0</strong></span>
+            <span>BUILDINGS <strong id="house-count">0 / 0</strong></span>
+            <span>SUPPLIES <strong id="score-value">0</strong></span>
+          </div>
+          <div class="game-right-controls">
+            <details id="troop-dropdown" class="game-dropdown" hidden>
+              <summary class="game-dropdown-toggle">Troops <span aria-hidden="true">⌄</span></summary>
+              <div class="game-dropdown-panel">
+                <h3>Troop deployment</h3>
+                <p>Soldiers: <strong id="soldier-count">0</strong></p>
+                <p>Soldiers automatically intercept exterminators.</p>
+                <button id="recruit-soldier" class="button button-primary" type="button">Spawn soldier · 50 supplies</button>
+              </div>
+            </details>
+            <details id="speed-dropdown" class="game-dropdown" hidden>
+              <summary class="game-dropdown-toggle">
+                <span>Speed <strong id="speed-label">1x</strong></span><span aria-hidden="true">⌄</span>
+              </summary>
+              <div class="game-dropdown-panel speed-options" role="group" aria-label="Game speed">
+                <button class="speed-option selected" data-game-speed="1" type="button" aria-pressed="true">1x</button>
+                <button class="speed-option" data-game-speed="1.5" type="button" aria-pressed="false">1.5x</button>
+                <button class="speed-option" data-game-speed="2" type="button" aria-pressed="false">2x</button>
+                <button class="speed-option" data-game-speed="3" type="button" aria-pressed="false">3x</button>
+                <button class="speed-option" data-game-speed="5" type="button" aria-pressed="false">5x</button>
+                <button class="speed-option" data-game-speed="10" type="button" aria-pressed="false">10x</button>
+                <button class="speed-option" data-game-speed="20" type="button" aria-pressed="false">20x</button>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="game-board">
+          <canvas id="game-canvas" width="960" height="540" aria-label="Move the map with WASD or arrow keys and scroll to zoom. Your ants automatically spread to buildings."></canvas>
+          <div id="game-overlay" class="game-overlay" hidden>
+            <div class="overlay-card">
+              <p class="eyebrow"><span class="eyebrow-line"></span> <span id="overlay-eyebrow">TAKE A BREATHER</span></p>
+              <h2 id="overlay-title">Paused</h2>
+              <p id="overlay-description">Your colony is waiting.</p>
+              <div class="overlay-actions">
+                <button id="resume-button" class="button button-primary" type="button">Resume</button>
+                <button id="restart-button" class="button button-secondary" type="button">Play again</button>
+                <button id="menu-button" class="button button-quiet" type="button">Main menu</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="game-help">
+          <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> MOVE MAP</span>
+          <span><kbd>SCROLL</kbd> ZOOM MAP</span>
+          <span class="game-tip">Click the meteor to recruit soldiers.</span>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <span>ANTVASION <span class="footer-muted">·</span> A GARDEN-SIZED ARCADE GAME</span>
+        <span class="footer-muted">BUILT FOR BRAVE LITTLE THINGS</span>
+      </footer>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
